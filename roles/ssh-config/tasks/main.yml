@@ -1,0 +1,2 @@
+- name: create ssh-config
+  template: src=config dest=~/.ssh/config mode=0644

@@ -1,0 +1,4 @@
+#- name: upload ssh public key
+#  copy: src=~/.ssh/id_rsa.pub dest=~/.ssh/id_rsa.pub owner=vagrant group=vagrant mode=0644
+#- name: insert public key to authorized_keys
+#  shell: "cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys"

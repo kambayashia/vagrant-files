@@ -1,0 +1,4 @@
+{% if github %}
+Host github.com
+  User kambayashia
+{% endif %}

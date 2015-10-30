@@ -1,0 +1,30 @@
+---
+- hosts: all
+  sudo: yes
+  tasks:
+    - name: test dayo
+      shell: "echo $SHELL"
+- hosts: all
+  sudo: yes
+  roles:
+    - common-install
+- hosts: all
+  roles:
+    - common-user
+- hosts: web
+  sudo: yes
+  roles:
+    - nginx
+- hosts: db
+  sudo: yes
+  roles:
+    - mysql
+- hosts: dev
+  sudo: yes
+  roles:
+    - emacs
+    - gcc
+- hosts: dev
+  roles:
+    - ssh-private-key
+    - {role: 'ssh-config', github: true}

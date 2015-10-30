@@ -11,10 +11,9 @@ Vagrant.configure(2) do |config|
 
   config.vm.define :web do |node|
     node.vm.network "forwarded_port", guest: 80, host: 8080
-    node.vm.network "private_network", ip: "192.168.1.2"
+    node.vm.network "private_network", ip: "10.1.1.3"
     # node.vm.network "public_network"
     #node.vm.synced_folder "../data", "/vagrant_data", type: :nfs
-
     node.vm.provider "virtualbox" do |vb|
       vb.name = "trusty64-web"
       vb.memory = "1024"
@@ -23,11 +22,27 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.define :db do |node|
-    node.vm.network "private_network", ip: "192.168.1.10"
-
+    node.vm.network "private_network", ip: "10.1.1.10"
     node.vm.provider "virtualbox" do |vb|
       vb.name = "trusty64-db"
       vb.memory = "1024"
     end
+  end
+
+  config.vm.define :dev do |node|
+    node.vm.network "private_network", ip: "10.1.1.100"
+    node.vm.provider "virtualbox" do |vb|
+      vb.name = "trusty64-dev"
+      vb.memory = "1024"
+    end
+  end
+
+  config.vm.provision "ansible" do |p|
+    p.groups = {
+      "all" => ["web", "db", "dev"],
+      "web" => ["web"],
+      "db" => ["db"],
+    }
+    p.playbook = 'main.yml'
   end
 end

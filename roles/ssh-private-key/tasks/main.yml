@@ -1,0 +1,2 @@
+- name: upload ssh private key
+  copy: src=~/.ssh/id_rsa dest=~/.ssh/id_rsa mode=600
