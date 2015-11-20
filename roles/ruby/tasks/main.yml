@@ -1,0 +1,50 @@
+---
+- name: check rbenv
+  stat: path=/etc/profile.d/rbenv.sh
+  register: rbenv_sh
+
+- name: get rbenv
+  git: repo=https://github.com/sstephenson/rbenv.git dest=/usr/local/rbenv
+  when: not rbenv_sh.stat.exists
+
+- name: get ruby-build
+  git: repo=https://github.com/sstephenson/ruby-build.git dest=/usr/local/rbenv/plugins/ruby-build
+  when: not rbenv_sh.stat.exists
+
+- name: copy global profile for rbenv
+  copy: src=rbenv.sh dest=/etc/profile.d/rbenv.sh
+  when: not rbenv_sh.stat.exists
+
+- name: check ruby
+  shell: /bin/bash -lc "rbenv versions | grep {{ ruby.version }} "
+  register: ruby_installed
+  failed_when: ruby_installed.rc not in [0, 1]
+
+- name: remove old ruby
+  apt: name={{ item }} state=absent
+  with_items:
+    - ruby
+    - ruby-dev
+  when: ruby_installed|failed
+
+- name: install packages
+  apt: name={{ item }} state=present
+  with_items:
+    - libssl-dev
+    - libffi-dev
+    - libreadline-dev
+    - libxml2-dev
+    - libxslt-dev
+    
+- name: install ruby
+  shell: /bin/bash -lc "rbenv install {{ ruby.version }} && rbenv rehash && rbenv global {{ ruby.version }}"
+  when: ruby_installed|failed
+
+- name: Install gem packages
+  gem: name={{ item }} executable=/usr/local/rbenv/shims/gem user_install=False
+  with_items:
+    - bundler
+
+- name: install nokogiri(gem)
+  command: sudo -i gem install nokogiri -- --use-system-libraries=true --with-xml2-include=/usr/include/libxml2/
+  sudo: no
