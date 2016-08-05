@@ -1,0 +1,54 @@
+- name: install requirements nvm yum
+  yum: name={{item}} state=installed
+  with_items: [ "gcc", "gcc-c++", "make", "openssl-devel",
+  "zlib-devel", "gyp", "glibc-devel" ]
+
+- name: create nvm directory
+  file: dest={{nvm.install_dir}} state=directory
+  tags: nvm
+
+- name: install nvm
+  get_url: url=https://raw.githubusercontent.com/creationix/nvm/{{nvm.version}}/nvm.sh dest={{nvm.install_dir}}/nvm.sh
+  tags: nvm
+
+- name: set profile
+  template: src=nvm.sh.j2 dest=/etc/profile.d/nvm.sh
+  tags: nvm
+
+- name: Install io.js {{ node.version }}
+  shell: source /etc/profile && nvm install {{ node.version }}
+  register: nvm_install_result
+  changed_when: "'is already installed.' not in nvm_install_result.stdout"
+  tags: nvm
+
+- name: Check if {{ node.version }} is the default node version
+  shell: source /etc/profile && nvm ls | grep -e 'default -> {{ node.version }}'
+  register: nvm_check_default
+  changed_when: False
+  ignore_errors: True
+  tags: nvm
+
+- name: Set default node version to {{ node.version }}
+  shell: source /etc/profile &&  nvm alias default {{ node.version }}
+  when: nvm_check_default|failed
+  tags: nvm
+
+- name: which node
+  shell: source /etc/profile &&  which node
+  register: nvm_node_install_path
+  changed_when: false
+  tags: nvm
+
+- name: link bin node
+  file: src="{{nvm_node_install_path.stdout}}" dest=/usr/local/bin/node state=link force=yes
+  when: nvm_node_install_path.stdout is defined
+
+- name: which npm
+  shell: source /etc/profile &&  which npm
+  register: nvm_npm_install_path
+  changed_when: false
+  tags: nvm
+
+- name: link bin npm
+  file: src="{{nvm_npm_install_path.stdout}}" dest=/usr/local/bin/npm state=link force=yes
+  when: nvm_npm_install_path.stdout is defined
