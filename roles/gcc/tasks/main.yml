@@ -1,10 +1,8 @@
 - name: install gcc
-  apt: name=gcc
-- name: install g++
-  apt: name=g++
-- name: install autoconf
-  apt: name=autoconf
-- name: install automake
-  apt: name=automake
-- name: install gdb
-  apt: name=gdb
+  apt: name={{ item }} state=present
+  with_items:
+    - gcc
+    - g++
+    - autoconf
+    - automake
+    - gdb

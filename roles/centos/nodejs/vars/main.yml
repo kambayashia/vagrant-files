@@ -1,0 +1,6 @@
+nvm:
+  install_dir: /usr/local/nvm
+  version: v0.31.1
+nodejs:
+  node:
+    version: v6.2.2

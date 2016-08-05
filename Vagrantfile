@@ -7,7 +7,7 @@
 # you're doing.
 Vagrant.configure(2) do |config|
   config.vm.box = "ubuntu/trusty64"
-  # config.vm.box_check_update = false
+  config.vm.box_check_update = false
 
   config.vm.define :web do |node|
     node.vm.network "forwarded_port", guest: 80, host: 8080
@@ -16,7 +16,7 @@ Vagrant.configure(2) do |config|
     #node.vm.synced_folder "../data", "/vagrant_data", type: :nfs
     node.vm.provider "virtualbox" do |vb|
       vb.name = "trusty64-web"
-      vb.memory = "1024"
+      vb.memory = "2048"
       vb.cpus = 2
     end
   end
